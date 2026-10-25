@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.ui.text.google.fonts)
     val roomVersion = "2.8.5"
 
     implementation(platform(libs.androidx.compose.bom))
