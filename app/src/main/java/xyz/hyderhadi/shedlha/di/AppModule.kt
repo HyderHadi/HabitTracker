@@ -9,7 +9,6 @@ import xyz.hyderhadi.shedlha.domain.use_case.AddHabitUseCase
 import xyz.hyderhadi.shedlha.domain.use_case.DeleteHabitUseCase
 import xyz.hyderhadi.shedlha.domain.use_case.GetAllHabitsUseCase
 import xyz.hyderhadi.shedlha.domain.use_case.HabitUseCase
-import kotlin.getValue
 
 
 interface AppModule {

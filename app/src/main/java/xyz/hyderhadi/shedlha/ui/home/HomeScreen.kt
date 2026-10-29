@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.hyderhadi.shedlha.HabitApp
+import xyz.hyderhadi.shedlha.ui.home.components.HomeContent
 import xyz.hyderhadi.shedlha.ui.viewModelFactory
 
 
@@ -14,6 +15,5 @@ fun HomeScreen(
         HomeScreenViewModel(HabitApp.appModule.habitUseCase)
     })
 ) {
-
-
+    HomeContent()
 }
