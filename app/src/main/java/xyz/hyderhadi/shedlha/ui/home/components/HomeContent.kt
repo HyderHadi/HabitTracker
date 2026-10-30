@@ -1,5 +1,8 @@
 package xyz.hyderhadi.shedlha.ui.home.components
 
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -20,22 +24,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.hyderhadi.shedlha.R
 import xyz.hyderhadi.shedlha.domain.model.Habit
+import xyz.hyderhadi.shedlha.ui.home.HomeScreenUiState
+import xyz.hyderhadi.shedlha.ui.home.HomeScreenViewModel
 import xyz.hyderhadi.shedlha.ui.theme.AppTypography
-import xyz.hyderhadi.shedlha.ui.theme.SHEDLHATheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    uiState: HomeScreenUiState,
+    viewModel: HomeScreenViewModel
 ) {
     Scaffold(
         modifier = modifier
@@ -49,10 +60,11 @@ fun HomeContent(
             AppNavigationBar()
         }
     ) { innerPadding ->
-
         TodayContent(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding),
+            uiState = uiState,
+            viewModel = viewModel
         )
     }
 }
@@ -66,6 +78,7 @@ fun HomeScreenTopBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .statusBarsPadding()
     ) {
         Text(
             text = stringResource(R.string.home_screen_title),
@@ -74,67 +87,49 @@ fun HomeScreenTopBar(
     }
 }
 
+@SuppressLint("RememberReturnType")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodayContent(
     modifier: Modifier = Modifier,
+    uiState: HomeScreenUiState,
+    viewModel: HomeScreenViewModel
 ) {
 
+    val progressValue = uiState.todayHabits.count { it.isDone }.toFloat() /
+            uiState.todayHabits.size
+    val habitDoneCount = uiState.todayHabits.count { it.isDone }
+    val progressLabel = when {
+        uiState.todayHabits.isEmpty() -> "Add a habit to get started!"
+        progressValue == 0f -> "Every great day starts with one small step."
+        progressValue < 0.5f -> "Nice start—keep the momentum going!"
+        progressValue < 1f -> "You’re more than halfway there. Keep it up!"
+        else -> "Amazing—you completed all your habits today!"
+    }
     Column(
         modifier = modifier
             .padding(8.dp),
         verticalArrangement = Arrangement.Center
     ) {
         DateAndTip(
-            date = "Monday, October 26",
-            tipOfTheDay = "Go get it, Champ"
+            date = currentDay.format(DateTimeFormatter.ofPattern("EEEE, MMMM d")),
+            tipOfTheDay = remember(currentDay) {
+                tipOfTheDayList[Random(currentDay.toEpochDay()).nextInt(tipOfTheDayList.size)]
+            }
         )
         DailyProgress(
-            habitDoneCount = "2 of 4",
-            progress = 0.5f,
-            progressLabel = "Halfway there, Keep it going"
+            habitDoneCount = habitDoneCount,
+            progress = progressValue,
+            progressLabel = progressLabel,
+            todayHabitTotalCount = uiState.todayHabits.size
         )
         TodaySectionHeading(
-            countOfTodayHabit = 4
+            countOfTodayHabit = uiState.todayHabits.size
         )
         HabitsTodayColumn(
-            habits = listOf(
-                Habit(
-                    id = 1,
-                    nameOfHabit = "Drink water",
-                    descriptionOfHabit = "1 glass after walking",
-                    isDone = true
-                ),
-                Habit(
-                    id = 2,
-                    nameOfHabit = "Walk for 20 minutes",
-                    descriptionOfHabit = "1 glass after walking",
-                    isDone = true
-                ),
-                Habit(
-                    id = 2,
-                    nameOfHabit = "Walk for 20 minutes",
-                    descriptionOfHabit = "Evening",
-                    isDone = false
-                ),
-                Habit(
-                    id = 2,
-                    nameOfHabit = "Stretch for 5 minutes",
-                    descriptionOfHabit = "Before bed",
-                    isDone = false
-                ),
-                Habit(
-                    id = 2,
-                    nameOfHabit = "Stretch for 5 minutes",
-                    descriptionOfHabit = "Before bed",
-                    isDone = false
-                ),
-                Habit(
-                    id = 2,
-                    nameOfHabit = "Stretch for 5 minutes",
-                    descriptionOfHabit = "Before bed",
-                    isDone = false
-                )
-            )
+            habits = uiState.todayHabits,
+            modifier = Modifier.weight(1f),
+            viewModel = viewModel
         )
         CompletionGuidance(
             modifier = Modifier
@@ -144,10 +139,10 @@ fun TodayContent(
 
 @Composable
 fun DateAndTip(
-    modifier: Modifier = Modifier,
     date: String,
     tipOfTheDay: String
 ) {
+
     Text(
         text = date,
         style = AppTypography.bodyMedium,
@@ -162,9 +157,10 @@ fun DateAndTip(
 @Composable
 fun DailyProgress(
     modifier: Modifier = Modifier,
-    habitDoneCount: String,
+    habitDoneCount: Int,
     progress: Float,
-    progressLabel: String
+    progressLabel: String,
+    todayHabitTotalCount: Int
 ) {
     Card(
         modifier = modifier
@@ -189,7 +185,7 @@ fun DailyProgress(
                     style = AppTypography.titleMedium
                 )
                 Text(
-                    text = habitDoneCount,
+                    text = "$habitDoneCount of $todayHabitTotalCount",
                     style = AppTypography.titleMedium,
                     color = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -210,7 +206,7 @@ fun DailyProgress(
                 text = progressLabel,
                 modifier = Modifier
                     .padding(8.dp),
-                style = AppTypography.titleMedium,
+                style = AppTypography.titleSmall,
                 color = Color.Gray
             )
         }
@@ -243,7 +239,8 @@ fun TodaySectionHeading(
 @Composable
 fun HabitsTodayColumn(
     modifier: Modifier = Modifier,
-    habits: List<Habit>
+    habits: List<Habit>,
+    viewModel: HomeScreenViewModel
 ) {
 
     LazyColumn(
@@ -254,7 +251,12 @@ fun HabitsTodayColumn(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(habits) { habit ->
-            TodayHabitRow(habit = habit)
+            TodayHabitRow(
+                habit = habit,
+                onCheckChange = {
+                    viewModel.updateHabitDoneState(habit)
+                }
+            )
         }
     }
 }
@@ -262,7 +264,8 @@ fun HabitsTodayColumn(
 @Composable
 fun TodayHabitRow(
     modifier: Modifier = Modifier,
-    habit: Habit
+    habit: Habit,
+    onCheckChange: () -> Unit = { }
 ) {
     Row(
         modifier = modifier
@@ -292,7 +295,9 @@ fun TodayHabitRow(
         }
         Checkbox(
             checked = habit.isDone,
-            onCheckedChange = { !habit.isDone },
+            onCheckedChange = {
+                onCheckChange()
+            },
             modifier = Modifier,
             colors = CheckboxDefaults.colors(
                 checkedColor = MaterialTheme.colorScheme.primaryContainer,
@@ -311,7 +316,6 @@ fun CompletionGuidance(
     ) {
         HorizontalDivider(
             modifier = modifier
-                .padding(8.dp)
                 .fillMaxWidth()
         )
         Text(
@@ -323,10 +327,16 @@ fun CompletionGuidance(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    SHEDLHATheme {
-        HomeContent()
-    }
-}
+@RequiresApi(Build.VERSION_CODES.O)
+val currentDay: LocalDate = LocalDate.now()
+
+val tipOfTheDayList = listOf(
+    "Start small. Keep going.",
+    "One habit at a time.",
+    "Progress beats perfection.",
+    "You’ve got this!",
+    "Keep the momentum going.",
+    "Every step counts.",
+    "Look how far you’ve come.",
+    "Finish strong!"
+)
