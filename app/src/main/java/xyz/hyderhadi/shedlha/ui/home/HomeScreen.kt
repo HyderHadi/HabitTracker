@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import xyz.hyderhadi.shedlha.HabitApp
 import xyz.hyderhadi.shedlha.domain.model.Habit
 import xyz.hyderhadi.shedlha.ui.home.components.HomeContent
@@ -23,12 +24,15 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = viewModel(factory = viewModelFactory {
         HomeScreenViewModel(HabitApp.appModule.habitUseCase)
-    })
+    }),
+    navController: NavController
 ) {
     val state by viewModel.uiState.collectAsState()
 
     HomeContent(
         uiState = state,
-        viewModel = viewModel
+        viewModel = viewModel,
+        modifier = modifier,
+        navController = navController
     )
 }

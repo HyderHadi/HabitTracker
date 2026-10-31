@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import xyz.hyderhadi.shedlha.R
 import xyz.hyderhadi.shedlha.domain.model.Habit
+import xyz.hyderhadi.shedlha.ui.AppNavigationBar
 import xyz.hyderhadi.shedlha.ui.home.HomeScreenUiState
 import xyz.hyderhadi.shedlha.ui.home.HomeScreenViewModel
 import xyz.hyderhadi.shedlha.ui.theme.AppTypography
@@ -46,7 +48,8 @@ import kotlin.random.Random
 fun HomeContent(
     modifier: Modifier = Modifier,
     uiState: HomeScreenUiState,
-    viewModel: HomeScreenViewModel
+    viewModel: HomeScreenViewModel,
+    navController: NavController
 ) {
     Scaffold(
         modifier = modifier
@@ -57,7 +60,9 @@ fun HomeContent(
             )
         },
         bottomBar = {
-            AppNavigationBar()
+            AppNavigationBar(
+                navController = navController
+            )
         }
     ) { innerPadding ->
         TodayContent(
