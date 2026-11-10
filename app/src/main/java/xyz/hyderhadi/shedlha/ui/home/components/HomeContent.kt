@@ -32,10 +32,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import xyz.hyderhadi.shedlha.R
 import xyz.hyderhadi.shedlha.domain.model.Habit
-import xyz.hyderhadi.shedlha.ui.AppNavigationBar
 import xyz.hyderhadi.shedlha.ui.home.HomeScreenUiState
 import xyz.hyderhadi.shedlha.ui.home.HomeScreenViewModel
 import xyz.hyderhadi.shedlha.ui.theme.AppTypography
@@ -49,7 +47,6 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     uiState: HomeScreenUiState,
     viewModel: HomeScreenViewModel,
-    navController: NavController
 ) {
     Scaffold(
         modifier = modifier
@@ -58,16 +55,11 @@ fun HomeContent(
             HomeScreenTopBar(
                 modifier = Modifier
             )
-        },
-        bottomBar = {
-            AppNavigationBar(
-                navController = navController
-            )
         }
-    ) { innerPadding ->
+    ) {
         TodayContent(
             modifier = Modifier
-                .padding(innerPadding),
+                .padding(it),
             uiState = uiState,
             viewModel = viewModel
         )
@@ -106,10 +98,10 @@ fun TodayContent(
     val habitDoneCount = uiState.todayHabits.count { it.isDone }
     val progressLabel = when {
         uiState.todayHabits.isEmpty() -> "Add a habit to get started!"
-        progressValue == 0f -> "Every great day starts with one small step."
-        progressValue < 0.5f -> "Nice start—keep the momentum going!"
-        progressValue < 1f -> "You’re more than halfway there. Keep it up!"
-        else -> "Amazing—you completed all your habits today!"
+        progressValue == 0f -> "Even small steps counts."
+        progressValue < 0.5f -> "Noice, keep the momentum going!"
+        progressValue < 1f -> "You’re acing it. Keep it up!"
+        else -> "Amazing—you completed all your habits today! :)"
     }
     Column(
         modifier = modifier
@@ -137,7 +129,7 @@ fun TodayContent(
             viewModel = viewModel
         )
         CompletionGuidance(
-            modifier = Modifier
+            modifier = Modifier.weight(0.2f)
         )
     }
 }
@@ -155,7 +147,7 @@ fun DateAndTip(
     )
     Text(
         text = tipOfTheDay,
-        style = AppTypography.displaySmall
+        style = AppTypography.headlineMedium
     )
 }
 
@@ -241,6 +233,7 @@ fun TodaySectionHeading(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HabitsTodayColumn(
     modifier: Modifier = Modifier,
@@ -290,7 +283,7 @@ fun TodayHabitRow(
                 modifier = Modifier
             )
             Text(
-                text = "${habit.descriptionOfHabit} . ${if (habit.isDone) "Done" else "Not done yet"}",
+                text = "${if (habit.descriptionOfHabit.isBlank()) "" else "."} ${if (habit.isDone) "Done" else "Not done yet"}",
                 style = AppTypography.bodyMedium,
                 color = Color.Gray,
                 maxLines = 1,
@@ -320,7 +313,7 @@ fun CompletionGuidance(
         modifier = modifier
     ) {
         HorizontalDivider(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
         )
         Text(
@@ -339,9 +332,8 @@ val tipOfTheDayList = listOf(
     "Start small. Keep going.",
     "One habit at a time.",
     "Progress beats perfection.",
-    "You’ve got this!",
-    "Keep the momentum going.",
+    "Brick by brick.",
     "Every step counts.",
-    "Look how far you’ve come.",
-    "Finish strong!"
+    "Always reflect on your progress",
+    "50% done better than perfect"
 )
