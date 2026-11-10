@@ -10,27 +10,32 @@ class HabitOfflineRepositoryImpl(
     private val habitsDao: HabitsDao
 ): HabitRepository {
 
-    override suspend fun saveHabit(habit: Habit) {
-        habitsDao.saveHabit(habit = habit)
-    }
-
-    override suspend fun deleteHabit(habit: Habit) {
-        habitsDao.deleteHabit(habit = habit)
-    }
 
     override fun getAllHabitStream(): Flow<List<Habit>> {
         return habitsDao.getAllHabits()
     }
 
-    override fun getAllTodayHabits(): Flow<List<Habit>> {
-        return habitsDao.getAllTodayHabits()
+    override suspend fun saveHabit(habit: Habit): Long {
+        return habitsDao.saveHabit(habit)
     }
 
-    override fun getHabitSchedule(habit: Habit): Flow<List<HabitSchedule>> {
-        return habitsDao.getHabitSchedule(habit = habit)
+    override suspend fun deleteHabit(habit: Habit) {
+        habitsDao.deleteHabit(habit)
     }
 
-    override suspend fun insertHabitSchedule(schedule: List<HabitSchedule>) {
-        habitsDao.insertHabitSchedule(schedule = schedule)
+    override fun getHabitSchedule(habitId: Long): Flow<List<Int>> {
+        return habitsDao.getHabitSchedule(habitId)
+    }
+
+    override suspend fun addToHabitSchedule(habitSchedule: HabitSchedule) {
+        habitsDao.addToHabitSchedule(habitSchedule)
+    }
+
+    override fun getTodayHabits(day: Int): Flow<List<Habit>> {
+        return habitsDao.getTodayHabits(day)
+    }
+
+    override suspend fun updateHabit(habit: Habit) {
+        habitsDao.updateHabit(habit)
     }
 }

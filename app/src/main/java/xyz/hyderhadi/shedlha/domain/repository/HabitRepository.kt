@@ -6,15 +6,17 @@ import xyz.hyderhadi.shedlha.domain.model.HabitSchedule
 
 interface HabitRepository {
 
-    suspend fun saveHabit(habit: Habit)
+    suspend fun saveHabit(habit: Habit): Long
 
     suspend fun deleteHabit(habit: Habit)
 
     fun getAllHabitStream(): Flow<List<Habit>>
 
-    fun getAllTodayHabits(): Flow<List<Habit>>
+    fun getHabitSchedule(habitId: Long): Flow<List<Int>>
 
-    fun getHabitSchedule(habit: Habit): Flow<List<HabitSchedule>>
+    suspend fun addToHabitSchedule(habitSchedule: HabitSchedule)
 
-    suspend fun insertHabitSchedule(schedule: List<HabitSchedule>)
+    fun getTodayHabits(day: Int): Flow<List<Habit>>
+
+    suspend fun updateHabit(habit: Habit)
 }
