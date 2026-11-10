@@ -1,14 +1,13 @@
 package xyz.hyderhadi.shedlha.data.data_source
 
-import android.R.attr.version
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import xyz.hyderhadi.shedlha.domain.model.Habit
-import xyz.hyderhadi.shedlha.domain.model.HabitCompletion
 import xyz.hyderhadi.shedlha.domain.model.HabitSchedule
+import xyz.hyderhadi.shedlha.domain.model.HabitStreak
 
 
-@Database(entities = [Habit::class, HabitCompletion::class, HabitSchedule::class], version = 1, exportSchema = false)
+@Database(entities = [Habit::class, HabitSchedule::class, HabitStreak::class], version = 1, exportSchema = false)
 abstract class HabitsDatabase: RoomDatabase() {
 
     abstract val habitsDao: HabitsDao

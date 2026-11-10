@@ -6,7 +6,7 @@ import xyz.hyderhadi.shedlha.domain.repository.HabitRepository
 class AddHabitUseCase(
     private val repository: HabitRepository
 ) {
-    suspend operator fun invoke(habit: Habit) {
-        repository.saveHabit(habit = habit)
+    suspend operator fun invoke(habit: Habit): Long {
+        return repository.saveHabit(habit = habit)
     }
 }
